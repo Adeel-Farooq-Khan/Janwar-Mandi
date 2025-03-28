@@ -1,0 +1,125 @@
+/* Hero background that extends behind the header */
+/* Hero background that extends behind the header */
+/* Hero background that extends behind the header */
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 500px;
+  background-image: url('/img/hero.jpg');
+  background-size: cover;
+  background-position: center;
+  z-index: 0; /* Change from -1 to 0 */
+}
+
+/* Adjust the page structure */
+body, html {
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+/* Adjust the hero section to work with the background */
+.hero {
+  color: white;
+  padding: 60px 40px;
+  text-align: center;
+  position: relative;
+  min-height: 400px; /* Set a minimum height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+
+/* Rest of your hero CSS remains the same */
+.hero h1 {
+  font-size: 36px;
+  margin-bottom: 15px;
+  color: #ffde00;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: 18px;
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+
+.search-container {
+  display: flex;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.search-input {
+  flex: 1;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #fff;
+  color: black;
+}
+
+.search-btn {
+  background-color: #4a8f29;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 4px;
+}
+
+.contact-seller {
+  margin-top: 30px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Hero Section */
+@media (max-width: 1024px) {
+  .hero {
+    padding: 40px 20px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 24px;
+    padding-top: 80px;
+  }
+
+  .hero p {
+    font-size: 16px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .search-btn {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 5px;
+  }
+}

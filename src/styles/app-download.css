@@ -1,0 +1,158 @@
+.app-download {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* background-color: #fff; */
+    padding: 60px;
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+    margin-left: 160px;
+  }
+  
+  .app-info {
+    padding-left: 100px;
+    flex: 1;
+    max-width: 450px;
+  }
+  
+  .app-info h2 {
+    color: #2e7d32;
+    font-size: 28px;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .app-info p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  .app-store-buttons {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .app-store-buttons a {
+    display: block;
+    transition: transform 0.2s ease;
+  }
+  
+  .app-store-buttons a:hover {
+    transform: scale(1.05);
+  }
+  
+  .app-store-buttons img {
+    height: 40px;
+  }
+  
+  .qr-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* margin: 0 30px; */
+  }
+  
+  .qr-code {
+    /* width: 150px; */
+    height: 150px;
+    margin-bottom: 10px;
+  }
+  
+  .qr-code img {
+    /* width: 100%; */
+    height: 100%;
+  }
+  
+  .qr-section p {
+    font-size: 14px;
+    color: #555;
+    text-align: center;
+    line-height: 1.3;
+  }
+  
+  .phone-mockup {
+    flex: 1;
+    max-width: 300px;
+    text-align: right;
+    margin-right: 300px;
+  }
+  
+  .phone-mockup img {
+    /* max-width: 100%; */
+    /* height: auto; */
+  }
+  
+  @media (max-width: 1200px) {
+    .app-download {
+      padding: 40px;
+      margin-left: 80px;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .app-download {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+      margin-left: 0;
+    }
+  
+    .app-info {
+      padding-left: 0;
+      max-width: 100%;
+    }
+  
+    .app-store-buttons {
+      justify-content: center;
+    }
+  
+    .phone-mockup {
+      text-align: center;
+      margin-right: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .app-download {
+      padding: 30px;
+    }
+  
+    .app-store-buttons img {
+      height: 35px;
+    }
+  
+    .qr-section {
+      margin: 20px 0;
+    }
+  
+    .qr-section p {
+      font-size: 12px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .app-download {
+      padding: 20px;
+    }
+  
+    .app-info h2 {
+      font-size: 20px;
+    }
+  
+    .app-info p {
+      font-size: 14px;
+    }
+  
+    .app-store-buttons img {
+      height: 30px;
+    }
+  
+    .phone-mockup img {
+      max-width: 90%;
+    }
+  }
+  

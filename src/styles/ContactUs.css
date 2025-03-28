@@ -1,0 +1,252 @@
+/* Overall container */
+.contactform {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 50px;
+    margin: auto;
+    padding: 50px 20px;
+    max-width: 1200px;
+}
+
+/* Contact form */
+.contact {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 30px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 450px;
+}
+
+.contact h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.contact input {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.contact .message {
+    height: 99px;
+    resize: vertical;
+}
+
+.contact button {
+    background: linear-gradient(#54e35b, #2e7d32);
+    color: white;
+    padding: 12px 13px;
+    border-radius: 8px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+}
+
+.contact button:hover {
+    background: linear-gradient(to right, #2e7d32, #54e35b);
+}
+
+/* Right-side contact info */
+.contactinfo {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.firstbox {
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    width: 100%;
+}
+
+.firstbox h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.firstbox h3 {
+    font-size: 20px;
+    margin-top: 15px;
+}
+
+.firstbox p {
+    font-size: 16px;
+    color: #555;
+    word-wrap: break-word;
+}
+
+.secondboxes {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.phoneno, .whatsapp {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    background: white;
+    padding: 12px;
+    border-radius: 10px;
+    width: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.phoneno i, .whatsapp i {
+    font-size: 20px;
+    color: #2E7D32;
+}
+
+.phoneno h3, .whatsapp h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+}
+
+.phoneno p, .whatsapp p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+h1 {
+    text-align: center;
+    font-size: 50px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.green {
+    color: #2E7D32;
+}
+
+.highlight {
+    color: #FFA500;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .contactform {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        padding: 30px 20px;
+    }
+    
+    .contact, .contactinfo {
+        max-width: 600px;
+        width: 100%;
+    }
+    
+    h1 {
+        font-size: 42px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contactform {
+        padding: 20px 15px;
+    }
+    
+    .contact {
+        padding: 20px;
+    }
+    
+    .contact h3 {
+        font-size: 20px;
+    }
+    
+    .contact input {
+        padding: 10px;
+    }
+    
+    .firstbox h2 {
+        font-size: 22px;
+    }
+    
+    .firstbox h3 {
+        font-size: 18px;
+    }
+    
+    .firstbox p {
+        font-size: 15px;
+    }
+    
+    h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .secondboxes {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .phoneno, .whatsapp {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .contact {
+        padding: 15px;
+    }
+    
+    .firstbox {
+        padding: 15px;
+    }
+    
+    .firstbox h2 {
+        font-size: 20px;
+    }
+    
+    h1 {
+        font-size: 30px;
+        margin-bottom: 15px;
+    }
+    
+    .contact h3, .firstbox h3 {
+        font-size: 16px;
+    }
+    
+    .contact input {
+        font-size: 14px;
+    }
+    
+    .contact button {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 350px) {
+    h1 {
+        font-size: 26px;
+    }
+    
+    .firstbox p, .phoneno p, .whatsapp p {
+        font-size: 13px;
+    }
+}

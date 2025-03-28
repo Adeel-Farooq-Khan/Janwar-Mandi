@@ -1,0 +1,215 @@
+.featured-banner {
+    position: relative;
+    margin-top: 80px;
+    height: 600px;
+    background-image: url("/img/3cowsimg.png");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    padding: 90px 40px;
+    padding-top: 30px;
+    width: 100%;
+  }
+  
+  .featured-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 100%);
+    z-index: 1;
+  }
+  
+  .banner-content {
+    position: relative;
+    z-index: 2;
+    max-width: 750px;
+    align-items: center;
+    justify-content: center;
+    left: 36%;
+  }
+  
+  .main-heading h1 {
+    font-size: 42px;
+    color: #333;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+  
+  .highlight {
+    color: #ffe000;
+    padding: 0 10px;
+  }
+  
+  .trust-badges {
+    margin-bottom: 30px;
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+  
+  .divider {
+    margin: 0 10px;
+  }
+  
+  .signup-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    text-align: center;
+    
+  }
+ 
+  
+  .signup-btn {
+    background-color: #fff;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    
+  }
+  
+  .signup-btn:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .urdu-text {
+    font-family: "Noto Nastaliq Urdu", serif;
+    direction: rtl;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  }
+  
+  .phone-number {
+    margin-top: 10px;
+  }
+  
+  .phone-number a {
+    display: inline-block;
+    background-color: #fff;
+    color: #333;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .phone-number a:hover {
+    background-color: #f0f0f0;
+  }
+  
+  @media (max-width: 1200px) {
+    .banner-content {
+      left: 20%;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .featured-banner {
+      height: 500px;
+      padding: 50px 20px;
+    }
+  
+    .banner-content {
+      left: 10%;
+      max-width: 600px;
+    }
+  
+    .main-heading h1 {
+      font-size: 36px;
+    }
+  
+    .urdu-text {
+      font-size: 16px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .featured-banner {
+      height: auto;
+      padding: 30px;
+      text-align: center;
+    }
+  
+    .banner-content {
+      left: 0;
+      max-width: 100%;
+    }
+  
+    .main-heading h1 {
+      font-size: 28px;
+    }
+  
+    .trust-badges {
+      font-size: 14px;
+    }
+  
+    .signup-section {
+      align-items: center;
+    }
+  
+    .urdu-text {
+      font-size: 14px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .featured-banner {
+      padding: 20px;
+    }
+  
+    .main-heading h1 {
+      font-size: 24px;
+    }
+  
+    .trust-badges {
+      font-size: 12px;
+    }
+  
+    .signup-btn {
+      font-size: 14px;
+      padding: 8px 15px;
+    }
+  
+    .urdu-text {
+      font-size: 12px;
+    }
+  }
+  .banner-content {
+    max-width: 90%; /* Adjust width to fit inside */
+    word-wrap: break-word; /* Ensure words don't overflow */
+    text-align: center; /* Center align text for smaller screens */
+  }
+  
+  @media (max-width: 480px) {
+    .banner-content {
+      max-width: 80%; /* Reduce width further for smaller devices */
+      padding: 10px; /* Add padding to avoid edge overlap */
+    }
+  
+    .main-heading h1 {
+      font-size: 1px; /* Reduce font size for mobile */
+      line-height: 1.2; /* Adjust spacing */
+    }
+  }
+  @media (max-width: 480px) {
+    .main-heading h1 {
+      font-size: 25px !important;
+      /* line-height: 1.2 !important; */
+    }
+  }
+  
+  

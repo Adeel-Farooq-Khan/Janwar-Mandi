@@ -1,0 +1,44 @@
+.top-bar {
+   
+    padding: 8px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    top: 10px;
+  }
+  
+  .download-app {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+  }
+  
+  .auth-buttons {
+    display: flex;
+    gap: 15px;
+    color: white;
+  }
+  
+  .auth-buttons a {
+   
+    text-decoration: none;
+    font-size: 14px;
+    color: white;
+  }
+  
+  /* Top Bar */
+@media (max-width: 768px) {
+  .top-bar {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px 20px;
+  }
+
+  .auth-buttons {
+    margin-top: 10px;
+    color: white;
+  }
+}
