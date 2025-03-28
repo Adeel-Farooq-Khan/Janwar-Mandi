@@ -61,19 +61,12 @@ export default function MessagesPage() {
 
         // If user clicked "I'm interested", send an automatic message
         if (interested === "true" && animalTitle && !initialMessageSent.current) {
-          // We'll handle sending the message after the conversation is set up
           initialMessageSent.current = true
 
-          // Create the conversation first
-          createConversation(conversationId, sellerId)
-            .then(() => {
-              // Send the interested message
-              sendInterestedMessage(conversationId, sellerId, animalTitle)
-            })
-            .catch((err) => {
-              console.error("Error setting up conversation:", err)
-              setError("Failed to start conversation. Please try again.")
-            })
+          // Send the interested message after a short delay to ensure everything is loaded
+          setTimeout(() => {
+            sendInterestedMessage(conversationId, sellerId, animalTitle)
+          }, 1000)
         }
       }
     }
@@ -88,64 +81,75 @@ export default function MessagesPage() {
         // Query conversations where the current user is a participant
         const q = query(collection(db, "conversations"), where("participants", "array-contains", currentUser.uid))
 
-        const unsubscribe = onSnapshot(q, async (snapshot) => {
-          const conversationsData = []
+        const unsubscribe = onSnapshot(
+          q,
+          async (snapshot) => {
+            const conversationsData = []
 
-          for (const docSnapshot of snapshot.docs) {
-            const conversationData = docSnapshot.data()
-            const conversationId = docSnapshot.id
+            for (const docSnapshot of snapshot.docs) {
+              const conversationData = docSnapshot.data()
+              const conversationId = docSnapshot.id
 
-            // Find the other participant's ID
-            const otherParticipantId = conversationData.participants.find((id) => id !== currentUser.uid)
+              // Find the other participant's ID
+              const otherParticipantId = conversationData.participants.find((id) => id !== currentUser.uid)
 
-            // Get the other user's info
-            let otherParticipantInfo = { displayName: "Unknown User", email: "" }
-            try {
-              const userDoc = await getDoc(doc(db, "users", otherParticipantId))
-              if (userDoc.exists()) {
-                otherParticipantInfo = userDoc.data()
-              } else {
-                // If user doc doesn't exist, try to get email from animal listings
-                const usersQuery = query(
-                  collection(db, "animalListings"),
-                  where("userId", "==", otherParticipantId),
-                  limit(1),
-                )
-                const userDocs = await getDocs(usersQuery)
-                if (!userDocs.empty) {
-                  otherParticipantInfo.email = userDocs.docs[0].data().userEmail
-                  otherParticipantInfo.displayName = userDocs.docs[0].data().userEmail.split("@")[0]
+              // Get the other user's info
+              let otherParticipantInfo = { displayName: "Unknown User", email: "" }
+              try {
+                const userDoc = await getDoc(doc(db, "users", otherParticipantId))
+                if (userDoc.exists()) {
+                  otherParticipantInfo = userDoc.data()
+                } else {
+                  // If user doc doesn't exist, try to get email from animal listings
+                  const usersQuery = query(
+                    collection(db, "animalListings"),
+                    where("userId", "==", otherParticipantId),
+                    limit(1),
+                  )
+                  const userDocs = await getDocs(usersQuery)
+                  if (!userDocs.empty) {
+                    otherParticipantInfo.email = userDocs.docs[0].data().userEmail
+                    otherParticipantInfo.displayName = userDocs.docs[0].data().userEmail.split("@")[0]
+                    if (userDocs.docs[0].data().userPhone) {
+                      otherParticipantInfo.phone = userDocs.docs[0].data().userPhone
+                    }
+                  }
                 }
+              } catch (error) {
+                console.error("Error fetching user info:", error)
               }
-            } catch (error) {
-              console.error("Error fetching user info:", error)
+
+              conversationsData.push({
+                id: conversationId,
+                ...conversationData,
+                otherParticipant: {
+                  id: otherParticipantId,
+                  ...otherParticipantInfo,
+                },
+                lastMessage: conversationData.lastMessage || { text: "No messages yet", timestamp: null },
+              })
             }
 
-            conversationsData.push({
-              id: conversationId,
-              ...conversationData,
-              otherParticipant: {
-                id: otherParticipantId,
-                ...otherParticipantInfo,
-              },
-              lastMessage: conversationData.lastMessage || { text: "No messages yet", timestamp: null },
+            // Sort by last message timestamp (newest first)
+            conversationsData.sort((a, b) => {
+              const timeA = a.lastMessage?.timestamp?.toDate?.() || new Date(0)
+              const timeB = b.lastMessage?.timestamp?.toDate?.() || new Date(0)
+              return timeB - timeA
             })
-          }
 
-          // Sort by last message timestamp (newest first)
-          conversationsData.sort((a, b) => {
-            const timeA = a.lastMessage?.timestamp?.toDate?.() || new Date(0)
-            const timeB = b.lastMessage?.timestamp?.toDate?.() || new Date(0)
-            return timeB - timeA
-          })
-
-          setConversations(conversationsData)
-          setLoading(false)
-        })
+            setConversations(conversationsData)
+            setLoading(false)
+          },
+          (error) => {
+            console.error("Error fetching conversations:", error)
+            setError("Failed to load conversations. Please try again.")
+            setLoading(false)
+          },
+        )
 
         return unsubscribe
       } catch (error) {
-        console.error("Error fetching conversations:", error)
+        console.error("Error setting up conversations listener:", error)
         setLoading(false)
       }
     }
@@ -157,33 +161,54 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!activeConversation || !currentUser) return
 
-    const fetchMessages = () => {
+    const fetchMessages = async () => {
       try {
+        // First ensure the conversation exists with both participants
+        const otherParticipantId = activeConversation.split("_").find((id) => id !== currentUser.uid)
+
+        // Create or update the conversation document first
+        await setDoc(
+          doc(db, "conversations", activeConversation),
+          {
+            participants: [currentUser.uid, otherParticipantId],
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true },
+        )
+
+        // Now query the messages
         const q = query(collection(db, "conversations", activeConversation, "messages"), orderBy("timestamp", "asc"))
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const messagesData = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
+            const messagesData = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
 
-          setMessages(messagesData)
-        })
+            setMessages(messagesData)
+          },
+          (error) => {
+            console.error("Error fetching messages:", error)
+            setError("Failed to load messages. Please try again.")
+          },
+        )
+
+        // Mark conversation as read after messages are loaded
+        markConversationAsRead()
 
         return unsubscribe
       } catch (error) {
-        console.error("Error fetching messages:", error)
+        console.error("Error setting up messages listener:", error)
+        setError("Failed to load messages. Please try again.")
       }
     }
 
-    const unsubscribe = fetchMessages()
+    fetchMessages()
 
-    // Mark conversation as read
-    markConversationAsRead()
-
-    return () => {
-      if (unsubscribe) unsubscribe()
-    }
+    // Don't try to mark as read immediately - wait until we know the conversation exists
   }, [activeConversation, currentUser])
 
   // Scroll to bottom when messages change
@@ -215,6 +240,7 @@ export default function MessagesPage() {
             id: userId,
             displayName: userData.userEmail.split("@")[0],
             email: userData.userEmail,
+            phone: userData.userPhone || null,
           })
         } else {
           setOtherUser({
@@ -248,6 +274,20 @@ export default function MessagesPage() {
     if (!activeConversation || !currentUser) return
 
     try {
+      // Get the other participant ID
+      const otherParticipantId = activeConversation.split("_").find((id) => id !== currentUser.uid)
+
+      // Ensure the conversation exists first
+      await setDoc(
+        doc(db, "conversations", activeConversation),
+        {
+          participants: [currentUser.uid, otherParticipantId],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      )
+
       const conversationRef = doc(db, "conversations", activeConversation)
       const conversationDoc = await getDoc(conversationRef)
 
@@ -265,30 +305,7 @@ export default function MessagesPage() {
       }
     } catch (error) {
       console.error("Error marking conversation as read:", error)
-    }
-  }
-
-  const createConversation = async (conversationId, otherParticipantId) => {
-    if (!currentUser) return
-
-    try {
-      const conversationRef = doc(db, "conversations", conversationId)
-      const conversationDoc = await getDoc(conversationRef)
-
-      if (!conversationDoc.exists()) {
-        // Create the conversation document if it doesn't exist
-        await setDoc(conversationRef, {
-          participants: [currentUser.uid, otherParticipantId],
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          unreadCount: {},
-        })
-        console.log("Conversation created successfully")
-      }
-      return true
-    } catch (error) {
-      console.error("Error creating conversation:", error)
-      throw error
+      // Don't show this error to the user as it's not critical
     }
   }
 
@@ -296,6 +313,18 @@ export default function MessagesPage() {
     if (!currentUser || !conversationId || !otherParticipantId || !animalTitle) return
 
     try {
+      // First ensure the conversation document exists with merge option
+      await setDoc(
+        doc(db, "conversations", conversationId),
+        {
+          participants: [currentUser.uid, otherParticipantId],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          unreadCount: {},
+        },
+        { merge: true },
+      )
+
       const interestedMessage = `I'm interested in your ${animalTitle}. Is it still available?`
 
       // Add message to the conversation
@@ -324,9 +353,35 @@ export default function MessagesPage() {
       })
 
       console.log("Interested message sent successfully")
+      setError("") // Clear any previous errors
     } catch (error) {
       console.error("Error sending interested message:", error)
       setError("Failed to send message. Please try again.")
+    }
+  }
+
+  const ensureConversationExists = async (conversationId, otherParticipantId) => {
+    if (!currentUser) return false
+
+    try {
+      // Try to create the conversation document first without checking if it exists
+      // This avoids the permission error when trying to read a non-existent document
+      await setDoc(
+        doc(db, "conversations", conversationId),
+        {
+          participants: [currentUser.uid, otherParticipantId],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          unreadCount: {},
+        },
+        { merge: true }, // Use merge to avoid overwriting if it already exists
+      )
+
+      console.log("Conversation created or updated successfully")
+      return true
+    } catch (error) {
+      console.error("Error ensuring conversation exists:", error)
+      throw error
     }
   }
 
@@ -339,8 +394,16 @@ export default function MessagesPage() {
       // Get the other participant ID
       const otherParticipantId = activeConversation.split("_").find((id) => id !== currentUser.uid)
 
-      // Make sure conversation exists first
-      await createConversation(activeConversation, otherParticipantId)
+      // Make sure conversation exists first with merge option
+      await setDoc(
+        doc(db, "conversations", activeConversation),
+        {
+          participants: [currentUser.uid, otherParticipantId],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      )
 
       // Add message to the conversation
       await addDoc(collection(db, "conversations", activeConversation, "messages"), {
@@ -369,7 +432,7 @@ export default function MessagesPage() {
 
       // Clear input
       setNewMessage("")
-      setError("")
+      setError("") // Clear any previous errors
     } catch (error) {
       console.error("Error sending message:", error)
       setError("Failed to send message. Please try again.")
@@ -453,7 +516,7 @@ export default function MessagesPage() {
                 <div className="chat-user-details">
                   <h3>{otherUser?.displayName || "User"}</h3>
                   <small>{otherUser?.email || ""}</small>
-                  {otherUser?.phone && <small className="chat-user-phone">{otherUser.phone}</small>}
+                  {otherUser?.phone && <small className="chat-user-phone">Phone: {otherUser.phone}</small>}
                 </div>
               </div>
             </div>
@@ -464,10 +527,15 @@ export default function MessagesPage() {
                 <div className="chat-animal-image">
                   {animal.imageBase64 ? (
                     <img
-                      src={animal.imageBase64 || "/placeholder.svg"}
+                      src={
+                        animal.imageBase64.startsWith("data:")
+                          ? animal.imageBase64
+                          : `data:image/jpeg;base64,${animal.imageBase64}`
+                      }
                       alt={animal.title}
                       onError={(e) => {
                         e.target.src = "/placeholder.svg"
+                        console.log("Image failed to load, using placeholder")
                       }}
                     />
                   ) : (

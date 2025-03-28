@@ -1,7 +1,8 @@
 "use client"
 
-import { FaEdit, FaTrash, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaComment, FaHeart } from "react-icons/fa"
+import { FaEdit, FaTrash, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaComment, FaPhoneAlt } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
+import { useState } from "react"
 
 export default function AnimalDetailModal({
   animal,
@@ -14,6 +15,7 @@ export default function AnimalDetailModal({
   currentUserId,
 }) {
   const navigate = useNavigate()
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false)
 
   // Handle image display with error fallback
   const renderImage = () => {
@@ -69,7 +71,7 @@ export default function AnimalDetailModal({
     return <img src="/placeholder.svg" alt="Image format not supported" className="modal-animal-image" />
   }
 
-  const handleMessageSeller = (isInterested = false) => {
+  const handleMessageSeller = () => {
     if (!currentUserId) {
       alert("You need to be logged in to send messages")
       return
@@ -84,22 +86,40 @@ export default function AnimalDetailModal({
     // This ensures the same conversation is used if they message each other again
     const conversationId = [currentUserId, animal.userId].sort().join("_")
 
-    // Navigate to messages page with the conversation ID and additional parameters
-    const params = new URLSearchParams()
-    params.set("conversation", conversationId)
-    params.set("seller", animal.userId)
-    params.set("animalId", animal.id)
-
-    // Add a parameter to indicate interest
-    if (isInterested) {
-      params.set("interested", "true")
-      params.set("animalTitle", animal.title)
-    }
-
-    navigate(`/dashboard/messages?${params.toString()}`)
+    // Navigate to messages page with the conversation ID
+    navigate(`/dashboard/messages?conversation=${conversationId}&seller=${animal.userId}&animalId=${animal.id}`)
 
     // Close the modal
     onClose()
+  }
+
+  const handleInterestedClick = () => {
+    if (!currentUserId) {
+      alert("You need to be logged in to contact the seller")
+      return
+    }
+
+    if (isOwner) {
+      alert("This is your own listing")
+      return
+    }
+
+    // Create a conversation ID that combines both user IDs
+    const conversationId = [currentUserId, animal.userId].sort().join("_")
+
+    // Navigate to messages page with the conversation ID and additional parameters
+    navigate(
+      `/dashboard/messages?conversation=${conversationId}&seller=${animal.userId}&animalId=${animal.id}&interested=true&animalTitle=${encodeURIComponent(
+        animal.title,
+      )}`,
+    )
+
+    // Close the modal
+    onClose()
+  }
+
+  const togglePhoneNumber = () => {
+    setShowPhoneNumber(!showPhoneNumber)
   }
 
   return (
@@ -172,7 +192,8 @@ export default function AnimalDetailModal({
                 </div>
                 {animal.userPhone && (
                   <div className="modal-seller-phone">
-                    <FaPhone className="modal-info-icon" /> {animal.userPhone}
+                    <FaPhone className="modal-info-icon" />
+                    {showPhoneNumber ? animal.userPhone : "Click 'Contact Seller' to view"}
                   </div>
                 )}
               </div>
@@ -192,11 +213,11 @@ export default function AnimalDetailModal({
             </div>
           ) : (
             <div className="modal-contact">
-              <button className="modal-action-button interested" onClick={() => handleMessageSeller(true)}>
-                <FaHeart /> I'm Interested
+              <button className="modal-action-button interested" onClick={handleInterestedClick}>
+                <FaComment /> I'm Interested
               </button>
-              <button className="modal-contact-button" onClick={() => handleMessageSeller(false)}>
-                <FaComment /> Message Seller
+              <button className="modal-contact-button" onClick={togglePhoneNumber}>
+                <FaPhoneAlt /> Contact Seller
               </button>
             </div>
           )}
@@ -205,3 +226,4 @@ export default function AnimalDetailModal({
     </div>
   )
 }
+
