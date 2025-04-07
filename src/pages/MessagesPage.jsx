@@ -467,6 +467,10 @@ export default function MessagesPage() {
     navigate("/dashboard/messages")
   }
 
+  const handleBackToDashboard = () => {
+    navigate("/dashboard")
+  }
+
   if (loading) {
     return (
       <div className="messages-loading">
@@ -477,129 +481,136 @@ export default function MessagesPage() {
   }
 
   return (
-    <div className="messages-container">
-      {/* Conversations List (Left Sidebar) */}
-      <div className={`conversations-sidebar ${activeConversation ? "hidden-mobile" : ""}`}>
-        <div className="conversations-header">
-          <h2>Messages</h2>
+    <>
+      <div className="messages-page-header">
+        <button className="back-to-dashboard" onClick={handleBackToDashboard}>
+          <FaArrowLeft /> Back to Dashboard
+        </button>
+      </div>
+      
+      <div className="messages-container">
+        {/* Conversations List (Left Sidebar) */}
+        <div className={`conversations-sidebar ${activeConversation ? "hidden-mobile" : ""}`}>
+          <div className="conversations-header">
+            <h2>Messages</h2>
+          </div>
+
+          <ConversationsList
+            conversations={conversations}
+            activeConversationId={activeConversation}onId={activeConversation}
+            onSelectConversation={handleConversationSelect}
+            currentUserId={currentUser?.uid}
+          />
+
+          {conversations.length === 0 && (
+            <div className="no-conversations">
+              <p>No conversations yet</p>
+              <small>When you message a seller, it will appear here</small>
+            </div>
+          )}
         </div>
 
-        <ConversationsList
-          conversations={conversations}
-          activeConversationId={activeConversation}
-          onSelectConversation={handleConversationSelect}
-          currentUserId={currentUser?.uid}
-        />
+        {/* Chat Window (Right Side) */}
+        <div className={`chat-window ${!activeConversation ? "hidden-mobile" : ""}`}>
+          {activeConversation ? (
+            <>
+              {/* Chat Header */}
+              <div className="chat-header">
+                <button className="back-button" onClick={handleBackToList}>
+                  <FaArrowLeft />
+                </button>
 
-        {conversations.length === 0 && (
-          <div className="no-conversations">
-            <p>No conversations yet</p>
-            <small>When you message a seller, it will appear here</small>
-          </div>
-        )}
-      </div>
-
-      {/* Chat Window (Right Side) */}
-      <div className={`chat-window ${!activeConversation ? "hidden-mobile" : ""}`}>
-        {activeConversation ? (
-          <>
-            {/* Chat Header */}
-            <div className="chat-header">
-              <button className="back-button" onClick={handleBackToList}>
-                <FaArrowLeft />
-              </button>
-
-              <div className="chat-user-info">
-                <div className="chat-user-avatar">
-                  {otherUser?.photoURL ? <img src={otherUser.photoURL || "/placeholder.svg"} alt="User" /> : <FaUser />}
-                </div>
-                <div className="chat-user-details">
-                  <h3>{otherUser?.displayName || "User"}</h3>
-                  <small>{otherUser?.email || ""}</small>
-                  {otherUser?.phone && <small className="chat-user-phone">Phone: {otherUser.phone}</small>}
-                </div>
-              </div>
-            </div>
-
-            {/* Animal Info (if available) */}
-            {animal && (
-              <div className="chat-animal-info">
-                <div className="chat-animal-image">
-                  {animal.imageBase64 ? (
-                    <img
-                      src={
-                        animal.imageBase64.startsWith("data:")
-                          ? animal.imageBase64
-                          : `data:image/jpeg;base64,${animal.imageBase64}`
-                      }
-                      alt={animal.title}
-                      onError={(e) => {
-                        e.target.src = "/placeholder.svg"
-                        console.log("Image failed to load, using placeholder")
-                      }}
-                    />
-                  ) : (
-                    <img src="/placeholder.svg" alt="Animal" />
-                  )}
-                </div>
-                <div className="chat-animal-details">
-                  <h4>{animal.title}</h4>
-                  <p className="chat-animal-price">Rs. {animal.price?.toLocaleString()}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {error && <div className="chat-error">{error}</div>}
-
-            {/* Messages */}
-            <div className="chat-messages">
-              {messages.length === 0 ? (
-                <div className="no-messages">
-                  <p>No messages yet</p>
-                  <small>Start the conversation by sending a message</small>
-                </div>
-              ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`message ${message.senderId === currentUser?.uid ? "sent" : "received"}`}
-                  >
-                    <div className="message-content">
-                      <p>{message.text}</p>
-                      <span className="message-time">
-                        {message.timestamp ? formatTime(message.timestamp) : "Sending..."}
-                      </span>
-                    </div>
+                <div className="chat-user-info">
+                  <div className="chat-user-avatar">
+                    {otherUser?.photoURL ? <img src={otherUser.photoURL || "/placeholder.svg"} alt="User" /> : <FaUser />}
                   </div>
-                ))
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                  <div className="chat-user-details">
+                    <h3>{otherUser?.displayName || "User"}</h3>
+                    <small>{otherUser?.email || ""}</small>
+                    {otherUser?.phone && <small className="chat-user-phone">Phone: {otherUser.phone}</small>}
+                  </div>
+                </div>
+              </div>
 
-            {/* Message Input */}
-            <form className="message-input" onSubmit={handleSendMessage}>
-              <input
-                type="text"
-                placeholder="Type a message..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-              />
-              <button type="submit" disabled={!newMessage.trim()}>
-                <FaPaperPlane />
-              </button>
-            </form>
-          </>
-        ) : (
-          <div className="no-conversation-selected">
-            <div className="no-conversation-content">
-              <h3>Select a conversation</h3>
-              <p>Choose a conversation from the list or start a new one by messaging a seller</p>
+              {/* Animal Info (if available) */}
+              {animal && (
+                <div className="chat-animal-info">
+                  <div className="chat-animal-image">
+                    {animal.imageBase64 ? (
+                      <img
+                        src={
+                          animal.imageBase64.startsWith("data:")
+                            ? animal.imageBase64
+                            : `data:image/jpeg;base64,${animal.imageBase64}`
+                        }
+                        alt={animal.title}
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg"
+                          console.log("Image failed to load, using placeholder")
+                        }}
+                      />
+                    ) : (
+                      <img src="/placeholder.svg" alt="Animal" />
+                    )}
+                  </div>
+                  <div className="chat-animal-details">
+                    <h4>{animal.title}</h4>
+                    <p className="chat-animal-price">Rs. {animal.price?.toLocaleString()}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {error && <div className="chat-error">{error}</div>}
+
+              {/* Messages */}
+              <div className="chat-messages">
+                {messages.length === 0 ? (
+                  <div className="no-messages">
+                    <p>No messages yet</p>
+                    <small>Start the conversation by sending a message</small>
+                  </div>
+                ) : (
+                  messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`message ${message.senderId === currentUser?.uid ? "sent" : "received"}`}
+                    >
+                      <div className="message-content">
+                        <p>{message.text}</p>
+                        <span className="message-time">
+                          {message.timestamp ? formatTime(message.timestamp) : "Sending..."}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Message Input */}
+              <form className="message-input" onSubmit={handleSendMessage}>
+                <input
+                  type="text"
+                  placeholder="Type a message..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                />
+                <button type="submit" disabled={!newMessage.trim()}>
+                  <FaPaperPlane />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="no-conversation-selected">
+              <div className="no-conversation-content">
+                <h3>Select a conversation</h3>
+                <p>Choose a conversation from the list or start a new one by messaging a seller</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
-

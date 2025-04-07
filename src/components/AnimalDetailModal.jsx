@@ -1,6 +1,17 @@
 "use client"
 
-import { FaEdit, FaTrash, FaTimes, FaPhone, FaEnvelope, FaMapMarkerAlt, FaComment, FaPhoneAlt } from "react-icons/fa"
+import {
+  FaEdit,
+  FaTrash,
+  FaTimes,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaComment,
+  FaPhoneAlt,
+  FaHeart,
+  FaRegHeart,
+} from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 
@@ -10,6 +21,7 @@ export default function AnimalDetailModal({
   isOwner,
   onEdit,
   onDelete,
+  onToggleFavorite,
   formatTimeAgo,
   formatAnimalType,
   currentUserId,
@@ -136,6 +148,21 @@ export default function AnimalDetailModal({
           <div className="modal-image-container">
             {renderImage()}
             <div className="modal-price">Rs. {animal.price?.toLocaleString() || "N/A"}</div>
+            {!isOwner && (
+              <button
+                className={`modal-favorite-button ${animal.isFavorite ? "is-favorite" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Create a simple toggle function that will be handled by the parent
+                  if (typeof onToggleFavorite === "function") {
+                    onToggleFavorite(e)
+                  }
+                }}
+              >
+                {animal.isFavorite ? <FaHeart /> : <FaRegHeart />}
+                <span>{animal.isFavorite ? "Saved" : "Save"}</span>
+              </button>
+            )}
           </div>
 
           <div className="modal-details">

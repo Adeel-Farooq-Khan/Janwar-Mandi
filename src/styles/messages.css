@@ -1,8 +1,38 @@
 /* Messages Page Styles */
 .messages-container {
   display: flex;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 104px); /* Adjusted for the back button header */
   background-color: #f8f9fa;
+}
+
+/* Messages Page Header */
+.messages-page-header {
+  padding: 1rem;
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.back-to-dashboard {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back-to-dashboard:hover {
+  background-color: #e5e7eb;
+}
+
+.back-to-dashboard svg {
+  font-size: 0.75rem;
 }
 
 /* Conversations Sidebar */
@@ -517,4 +547,3 @@
     flex-direction: column;
   }
 }
-

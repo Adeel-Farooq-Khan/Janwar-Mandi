@@ -10,6 +10,8 @@
   z-index: 10; /* Keep a positive z-index */
   background-color: transparent; /* Make sure it's transparent to see the hero background */
   position: relative; /* Add relative positioning */
+  
+  
 }
 
 /* Make sure the nav links are visible */
@@ -17,8 +19,13 @@
   display: flex;
   gap: 20px;
   z-index: 10;
+  
 }
-
+.nav-links a {
+  color: white !important;
+  font-weight: 600;
+  font-size: 16px;
+}
 .logo {
   height: 50px;
   width: auto;
@@ -38,6 +45,7 @@
   position: relative; 
   transition: color 0.3s ease;
   padding: 10px;
+  color: white !important;
 }
 
 .nav-link::after {

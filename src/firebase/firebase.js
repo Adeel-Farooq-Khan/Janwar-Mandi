@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
+import { getStorage } from "firebase/storage" // Add this import for Firebase Storage
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,10 +19,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+const storage = getStorage(app) // Initialize Firebase Storage
 
 // Providers for Google & Facebook Authentication
 const googleProvider = new GoogleAuthProvider()
 const facebookProvider = new FacebookAuthProvider()
 
-export { app, auth, db, googleProvider, facebookProvider }
+export { app, auth, db, storage, googleProvider, facebookProvider } // Export storage
 
