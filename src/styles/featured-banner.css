@@ -1,7 +1,7 @@
 .featured-banner {
     position: relative;
     margin-top: 80px;
-    height: 600px;
+    height: 735px;
     background-image: url("/img/3cowsimg.png");
     background-size: cover;
     background-position: center;
@@ -29,7 +29,7 @@
     max-width: 750px;
     align-items: center;
     justify-content: center;
-    left: 36%;
+    left: 32%;
   }
   
   .main-heading h1 {
@@ -160,9 +160,6 @@
   
     .signup-section {
       align-items: center;
-      justify-content: center;
-      display: flex;
-      
     }
   
     .urdu-text {
