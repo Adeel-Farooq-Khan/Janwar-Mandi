@@ -312,3 +312,87 @@
   }
 }
 
+/* Modal Styles for Forgot Password */
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-modal {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.auth-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.auth-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.auth-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.auth-modal-close:hover {
+  color: #333;
+}
+
+.auth-modal-body {
+  padding: 1.5rem;
+}
+
+.auth-modal-body p {
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.auth-success {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.auth-success p {
+  color: #2e7d32;
+  margin-bottom: 1.5rem;
+}
+
+/* Make the forgot password link a button for better accessibility */
+.auth-forgot {
+  background: none;
+  border: none;
+  color: #3b82f6;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.auth-forgot:hover {
+  color: #1d4ed8;
+}

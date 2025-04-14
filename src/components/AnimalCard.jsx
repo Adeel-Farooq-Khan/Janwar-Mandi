@@ -11,7 +11,7 @@ export default function AnimalCard({ animal, currentUserId, onEdit, onDelete }) 
   const [isFavorite, setIsFavorite] = useState(false)
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false)
 
-  // Check if animal is in favorites on component mount
+
   useEffect(() => {
     const checkIfFavorite = async () => {
       if (!currentUserId || !animal.id) return
@@ -27,7 +27,7 @@ export default function AnimalCard({ animal, currentUserId, onEdit, onDelete }) 
           setIsFavorite(exists)
         } catch (error) {
           console.error("Error checking favorite document:", error)
-          // If there's a permission error, assume it's not favorited
+          
           setIsFavorite(false)
         }
       } catch (error) {

@@ -1,6 +1,6 @@
 /* Base styles */
 .featured {
-    background-image: url("/img/aboutushero.png");
+    background-image: linear-gradient(to left, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.5) 20%, rgba(0, 0, 0, 0.2) 30%, rgba(0, 0, 0, 0.2) 70%, rgba(0, 0, 0, 0.5) 80%, rgba(0, 0, 0, 0.5) 100%),   url("/img/aboutushero.png");
     background-size: cover;
     background-position: center;
     display: flex;
@@ -10,23 +10,24 @@
     width: 100%;
     position: relative;
     height: 500px; /* Reduced from 600px */
+    
 }
 
 .main-heading h1 {
-    font-size: 48px; /* Reduced from 60px */
+    font-size: 60px; /* Reduced from 60px */
     font-weight: 700;
 }
 
-.nav-link {
+.nav-links a {
     color: black !important;
 }
 
 .top-bar {
-    color: black;
+    color: black !important;
 }
 
 .auth-buttons a {
-    color: black;
+    color: black !important;
 }
 
 .aboutus-content {
@@ -64,7 +65,7 @@
     max-width: 1300px;
     margin: 40px auto;
     padding: 20px;
-    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 4px 8px 6px rgba(0, 0, 0, 0.1);
 }
 
 .whychose h1 {
@@ -75,7 +76,9 @@
     color: #434343;
     margin-bottom: 10px;
 }
-
+.about-janwar{
+    color: rgba(46, 125, 50, 1);
+}
 .whychose p {
     font-size: 16px;
     line-height: 1.6;
@@ -85,12 +88,14 @@
     margin-bottom: 15px;
     padding: 0px 40px; /* Reduced from 80px */
 }
-
+.main-heading h1{
+    color: #ffffff;
+}
 .whyus {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 20px;
     margin-bottom: 20px;
 }
 

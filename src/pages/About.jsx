@@ -44,7 +44,7 @@ function AboutUS() {
       </section>
       <section className="whychose">
         <h1>
-          Why Chose <span className="highlight">Janwar Mandi?</span>
+         <span className="highlight"><span className="about-janwar"> Why Chose </span>Janwar Mandi?</span>
         </h1>
         <p>
           At Janwar Mandi, we are revolutionizing the way people buy and sell
