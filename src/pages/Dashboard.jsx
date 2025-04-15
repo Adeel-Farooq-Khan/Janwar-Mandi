@@ -2,18 +2,17 @@
 
 import { useState, useEffect } from "react"
 import { auth, db } from "../firebase/firebase"
-import { 
-  collection, 
-  addDoc, 
+import {
+  collection,
+  addDoc,
   updateDoc,
   deleteDoc,
   doc,
-  serverTimestamp, 
-  query, 
-  getDocs, 
-  orderBy, 
+  serverTimestamp,
+  query,
+  getDocs,
+  orderBy,
   limit,
-  where 
 } from "firebase/firestore"
 import { FaPlus, FaTimes, FaUpload, FaFilter } from "react-icons/fa"
 import "../styles/dashboard.css"
@@ -28,6 +27,7 @@ export default function Dashboard() {
   const [animals, setAnimals] = useState([])
   const [filteredAnimals, setFilteredAnimals] = useState([])
   const [selectedCategory, setSelectedCategory] = useState("all")
+  const [categories, setCategories] = useState([])
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -46,8 +46,8 @@ export default function Dashboard() {
   const [isEditing, setIsEditing] = useState(false)
   const [editingAnimalId, setEditingAnimalId] = useState(null)
 
-  const animalCategories = [
-    { value: "all", label: "All Animals" },
+  // Default categories as fallback
+  const defaultCategories = [
     { value: "cow", label: "Cow" },
     { value: "dairy-cow", label: "Dairy Cow" },
     { value: "goat", label: "Goat" },
@@ -62,8 +62,10 @@ export default function Dashboard() {
     const currentUser = auth.currentUser
     setUser(currentUser)
 
-    // Fetch all animals, not just the user's
-    fetchAllAnimals()
+    // Fetch categories first, then animals
+    fetchCategories().then(() => {
+      fetchAllAnimals()
+    })
 
     // Add a small delay to show the loader animation
     setTimeout(() => {
@@ -80,11 +82,45 @@ export default function Dashboard() {
     }
   }, [selectedCategory, animals])
 
+  const fetchCategories = async () => {
+    try {
+      // Fetch categories from Firestore
+      const categoriesRef = collection(db, "categories")
+      const q = query(categoriesRef, orderBy("label", "asc"))
+      const querySnapshot = await getDocs(q)
+
+      if (querySnapshot.empty) {
+        console.log("No categories found, using defaults")
+        setCategories([{ value: "all", label: "All Animals" }, ...defaultCategories])
+        return
+      }
+
+      const categoriesList = []
+      querySnapshot.forEach((doc) => {
+        // Only include active categories
+        if (doc.data().isActive !== false) {
+          categoriesList.push({
+            id: doc.id,
+            ...doc.data(),
+          })
+        }
+      })
+
+      // Add "All Animals" option at the beginning
+      setCategories([{ value: "all", label: "All Animals" }, ...categoriesList])
+      console.log("Categories loaded:", categoriesList.length)
+    } catch (error) {
+      console.error("Error fetching categories:", error)
+      // Fallback to default categories if there's an error
+      setCategories([{ value: "all", label: "All Animals" }, ...defaultCategories])
+    }
+  }
+
   const fetchAllAnimals = async () => {
     try {
       // Use the correct collection name that matches your security rules
       const animalsRef = collection(db, "animalListings")
-    
+
       // Get all animals, ordered by creation date (newest first)
       // Limit to 50 for performance
       const q = query(animalsRef, orderBy("createdAt", "desc"), limit(50))
@@ -100,6 +136,7 @@ export default function Dashboard() {
       })
 
       setAnimals(animalsList)
+      console.log("Animals loaded:", animalsList.length)
     } catch (error) {
       console.error("Error fetching animals:", error)
       setError("Failed to load animals. Please try again later.")
@@ -213,28 +250,50 @@ export default function Dashboard() {
       image: null,
       imageBase64: animal.imageBase64 || "",
     })
-    
+
     // Set editing state
     setIsEditing(true)
     setEditingAnimalId(animal.id)
-    
+
     // Show the form
     setShowAddAnimalForm(true)
   }
 
   const handleDeleteAnimal = async (animalId) => {
     try {
+      // Verify the current user is the owner of the animal
+      const animalToDelete = animals.find((animal) => animal.id === animalId)
+
+      if (!animalToDelete) {
+        throw new Error("Animal not found")
+      }
+
+      const currentUser = auth.currentUser
+
+      if (!currentUser) {
+        throw new Error("You must be logged in to delete an animal")
+      }
+
+      if (animalToDelete.userId !== currentUser.uid) {
+        throw new Error("You can only delete your own listings")
+      }
+
+      // Confirm deletion
+      if (!window.confirm("Are you sure you want to delete this animal listing?")) {
+        return
+      }
+
       // Delete the animal from Firestore
       await deleteDoc(doc(db, "animalListings", animalId))
-      
+
       // Update the state
-      setAnimals(animals.filter(animal => animal.id !== animalId))
-      
+      setAnimals(animals.filter((animal) => animal.id !== animalId))
+
       // Show success message
       alert("Animal listing deleted successfully")
     } catch (error) {
       console.error("Error deleting animal:", error)
-      alert("Failed to delete animal listing. Please try again.")
+      alert(`Failed to delete animal listing: ${error.message}`)
     }
   }
 
@@ -300,27 +359,32 @@ export default function Dashboard() {
       }
 
       if (isEditing) {
+        // Verify the current user is the owner of the animal
+        const animalToEdit = animals.find((animal) => animal.id === editingAnimalId)
+
+        if (animalToEdit && animalToEdit.userId !== currentUser.uid) {
+          throw new Error("You can only edit your own listings")
+        }
+
         // Update existing animal
         const animalRef = doc(db, "animalListings", editingAnimalId)
-        
-        // Don't update the timestamp or user info when editing
+
+        // Add updated timestamp
+        animalData.updatedAt = serverTimestamp()
+
         await updateDoc(animalRef, animalData)
-        
+
         // Update the animal in the state
-        setAnimals(animals.map(animal => 
-          animal.id === editingAnimalId 
-            ? { ...animal, ...animalData } 
-            : animal
-        ))
-        
+        setAnimals(animals.map((animal) => (animal.id === editingAnimalId ? { ...animal, ...animalData } : animal)))
+
         setSuccess("Animal updated successfully!")
       } else {
         // Add new animal
         animalData.createdAt = serverTimestamp()
-        
+
         // Use the correct collection name that matches your security rules
         const docRef = await addDoc(collection(db, "animalListings"), animalData)
-        
+
         // Add the new animal to the state with its ID
         setAnimals((prevAnimals) => [
           {
@@ -330,7 +394,7 @@ export default function Dashboard() {
           },
           ...prevAnimals,
         ])
-        
+
         setSuccess("Animal added successfully!")
       }
 
@@ -347,7 +411,7 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error saving animal:", error)
       // More detailed error message
-      setError(`Failed to ${isEditing ? 'update' : 'add'} animal: ${error.message || "Unknown error"}`)
+      setError(`Failed to ${isEditing ? "update" : "add"} animal: ${error.message || "Unknown error"}`)
     } finally {
       setIsSubmitting(false)
     }
@@ -391,7 +455,7 @@ export default function Dashboard() {
               onChange={handleCategoryChange}
               className="category-select"
             >
-              {animalCategories.map((category) => (
+              {categories.map((category) => (
                 <option key={category.value} value={category.value}>
                   {category.label}
                 </option>
@@ -417,7 +481,7 @@ export default function Dashboard() {
 
               <form onSubmit={handleSubmit} className="add-animal-form">
                 <div className="form-group">
-                  <label>Upload Photo{!isEditing && '*'}</label>
+                  <label>Upload Photo{!isEditing && "*"}</label>
                   <div className="image-upload-container">
                     {formData.imageBase64 ? (
                       <div className="image-preview-container">
@@ -438,7 +502,7 @@ export default function Dashboard() {
                       </div>
                     )}
                   </div>
-                  <small>Max size: 5MB {isEditing && '(Leave unchanged to keep current image)'}</small>
+                  <small>Max size: 5MB {isEditing && "(Leave unchanged to keep current image)"}</small>
                 </div>
 
                 <div className="form-row">
@@ -472,13 +536,13 @@ export default function Dashboard() {
                     <label>Animal Type*</label>
                     <select name="type" value={formData.type} onChange={handleInputChange} required>
                       <option value="">Select Type</option>
-                      <option value="cow">Cow</option>
-                      <option value="dairy-cow">Dairy Cow</option>
-                      <option value="goat">Goat</option>
-                      <option value="camel">Camel</option>
-                      <option value="hen">Hen</option>
-                      <option value="ram">Ram</option>
-                      <option value="qurbani">Qurbani</option>
+                      {categories
+                        .filter((category) => category.value !== "all")
+                        .map((category) => (
+                          <option key={category.value} value={category.value}>
+                            {category.label}
+                          </option>
+                        ))}
                     </select>
                   </div>
 
@@ -546,7 +610,13 @@ export default function Dashboard() {
                     Cancel
                   </button>
                   <button type="submit" className="submit-button" disabled={isSubmitting}>
-                    {isSubmitting ? (isEditing ? "Updating..." : "Adding...") : (isEditing ? "Update Animal" : "Add Animal")}
+                    {isSubmitting
+                      ? isEditing
+                        ? "Updating..."
+                        : "Adding..."
+                      : isEditing
+                        ? "Update Animal"
+                        : "Add Animal"}
                   </button>
                 </div>
               </form>
@@ -557,9 +627,9 @@ export default function Dashboard() {
         <div className="animals-grid">
           {filteredAnimals.length > 0 ? (
             filteredAnimals.map((animal) => (
-              <AnimalCard 
-                key={animal.id} 
-                animal={animal} 
+              <AnimalCard
+                key={animal.id}
+                animal={animal}
                 currentUserId={user?.uid}
                 onEdit={handleEditAnimal}
                 onDelete={handleDeleteAnimal}
